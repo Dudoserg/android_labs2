@@ -1,18 +1,29 @@
 package com.example.lab2;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.example.lab2.Requests.Time;
+import com.google.gson.Gson;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,6 +55,14 @@ public class MainActivity extends AppCompatActivity {
     private boolean bound;
     private long interval;
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    Button button_service3;
+    TextView textView_service3ResultIp;
+    TextView textView_service3ResultTime;
+    private BroadcastReceiver br;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
         start();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void initComponent() {
         // Получаем все элементы UI
         this.textView_service1Result = (TextView) this.findViewById(R.id.textView_service1Result);
@@ -67,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
             // Создаем Intent для вызова сервиса, кладем туда данные
             // и ранее созданный PendingIntent
             intent_1 = new Intent(this, Service1.class)
-                    .putExtra(Service1.PARAM_TIME, 7)
+                    .putExtra(Service1.PARAM_TIME, 1234)
                     .putExtra(Service1.PARAM_PINTENT, pi_1);
             // стартуем сервис
             startService(intent_1);
@@ -111,7 +131,51 @@ public class MainActivity extends AppCompatActivity {
         this.button_service2DownInterval.setOnClickListener(view -> {
             changeInterval(-100);
         });
+
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        this.textView_service3ResultIp = (TextView) this.findViewById(R.id.textView_service3ResultIp);
+        this.textView_service3ResultTime = (TextView) this.findViewById(R.id.textView_service3ResultTime);
+        this.button_service3 = (Button) this.findViewById(R.id.button_service3);
+
+        // Запускаем свой IntentService
+        Intent intentMyIntentService3 = new Intent(this, MyIntentService.class);
+
+
+        // создаем BroadcastReceiver
+        br = new BroadcastReceiver() {
+            // действия при получении сообщений
+            public void onReceive(Context context, Intent intent) {
+                int task = intent.getIntExtra(MyIntentService.PARAM_TASK, 0);
+                int status = intent.getIntExtra(MyIntentService.PARAM_STATUS, 0);
+                String result = intent.getStringExtra(MyIntentService.PARAM_RESULT);
+                if (result == null || result.equals("") || result.equals("null"))
+                    return;
+                Time time = new Gson().fromJson(result, Time.class);
+                DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy    HH:mm:ss");
+                textView_service3ResultTime.setText(dateFormat.format(time.getDatetime()));
+                textView_service3ResultIp.setText(time.getClient_ip());
+            }
+        };
+        IntentFilter intFilt = new IntentFilter(MyIntentService.BROADCAST_ID);         // создаем фильтр для BroadcastReceiver
+        registerReceiver(br, intFilt);          // регистрируем (включаем) BroadcastReceiver
+
+
+        this.button_service3.setOnClickListener(view -> {
+            MyIntentService.getIp(this);
+        });
+
+//        ContactService contactService = new ContactService(this, this);
+//        ArrayList<Contact> all = contactService.getAll();
+//        for (Contact current : all) {
+//            String name = current.getName();
+//            String phone = current.getPhones().stream().collect(Collectors.joining(",\t"));
+//            System.out.println(name + "\t" + phone);
+//        }
+//        System.out.println();
     }
+
 
     @Override
     protected void onStart() {
@@ -129,7 +193,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClickStart(View v) {
         startService(intent_2);
-
         new Thread(() -> {
             while (!bound) {
                 try {

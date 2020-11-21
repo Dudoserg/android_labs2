@@ -9,6 +9,9 @@ import android.util.Log;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * local binding
+ */
 public class Service2 extends Service {
 
     final String LOG_TAG = "myLogs";
@@ -50,14 +53,12 @@ public class Service2 extends Service {
         }
     }
 
-
     long changeInterval(long gap) {
         interval = interval + gap;
         if (interval < 0) interval = 0;
         schedule();
         return interval;
     }
-
 
     class MyBinder extends Binder {
         Service2 getService() {
