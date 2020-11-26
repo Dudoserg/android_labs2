@@ -1,23 +1,37 @@
 package com.example.lab2;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
-import com.example.lab2.adapter.Lab3_Adapter;
-import com.example.lab2.adapter.Car;
+import com.example.lab2.Lab3.DownloadImageTask;
+import com.example.lab2.Lab3.Lab3_Adapter;
+import com.example.lab2.Lab3.Car;
+import com.example.lab2.Lab3.ServiceDromParcer;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class Main3Activity extends AppCompatActivity {
+
+    final String LOG_TAG = "myLogs";
+
 
     private RecyclerView recyclerView;
     private LinearLayout linearLayout;
@@ -32,8 +46,8 @@ public class Main3Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main3);
 
-        setInitialData();
         initComponents();
+        setInitialData();
     }
 
     private void initComponents() {
@@ -50,7 +64,6 @@ public class Main3Activity extends AppCompatActivity {
         // устанавливаем для списка адаптер
         recyclerView.setAdapter(adapter);
         recyclerView.setNestedScrollingEnabled(false);
-
 
 
         LinearLayoutManager layoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
@@ -85,30 +98,78 @@ public class Main3Activity extends AppCompatActivity {
 
     int counter = 12;
 
+    PendingIntent pendingIntentDromLoad = null;
+    final int ServiceDromParserId = 1;
+    Intent intentDromLoad = null;
+
+    int carsNumber = 0;
+
     private void method() {
         new Thread(() -> {
             showProgressView();
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    for (int i = 0; i < 5; i++) {
-                        adapter.addElement(
-                                new Car("kek #" + (counter++), UUID.randomUUID().toString(), R.drawable.cat)
-                        );
-                    }
-                    loadmore = true;
+//                    for (int i = 0; i < 5; i++) {
+//                        adapter.addElement(
+//                                new Car("kek #" + (counter++), UUID.randomUUID().toString(), R.drawable.unknown_car)
+//                        );
+//                    }
+
+                    // Создаем PendingIntent для Service1 Task1
+                    pendingIntentDromLoad = createPendingResult(ServiceDromParserId, new Intent(), 0);
+                    // Создаем Intent для вызова сервиса, кладем туда данные
+                    // и ранее созданный PendingIntent
+                    intentDromLoad = new Intent(Main3Activity.this, ServiceDromParcer.class)
+                            .putExtra(ServiceDromParcer.PARAM_NUMBER, carsNumber++)
+                            .putExtra(ServiceDromParcer.PARAM_PINTENT, pendingIntentDromLoad);
+                    // стартуем сервис
+                    startService(intentDromLoad);
                 }
             });
-            hideProgressView();
+
 
         }).start();
     }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d(LOG_TAG, "requestCode = " + requestCode + ", resultCode = " + resultCode);
+
+
+        switch (requestCode) {
+            case ServiceDromParserId: {
+                if (resultCode == ServiceDromParcer.STATUS_FINISH) {
+                    // Если сервис получаем результат
+                    String json = data.getStringExtra(ServiceDromParcer.PARAM_RESULT);
+                    Gson gson = new Gson();
+                    List<Car> cars = gson.fromJson(json, new TypeToken<List<Car>>() {
+                    }.getType());
+                    for (Car car : cars) {
+                        car.setImage(R.drawable.unknown_car);
+                        AsyncTask<String, Void, Bitmap> execute = new DownloadImageTask(new ImageView(this))
+                                .execute(car.getImage_x2());
+                        try {
+                            Bitmap bitmap = execute.get();
+                            car.setBitmap(bitmap);
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        adapter.addElement(car);
+                    }
+                }
+                loadmore = true;
+                hideProgressView();
+                break;
+            }
+        }
+
+    }
 
     void showProgressView() {
         runOnUiThread(new Runnable() {
@@ -129,15 +190,19 @@ public class Main3Activity extends AppCompatActivity {
     }
 
     private void setInitialData() {
-
-        cars.add(new Car("Huawei P10", "Huawei", R.drawable.bear_pixel_10));
-        cars.add(new Car("Elite z3", "HP", R.drawable.bear_pixel_10));
-        cars.add(new Car("Galaxy S8", "Samsung", R.drawable.cat));
-        cars.add(new Car("LG G 5", "LG", R.drawable.cat));
-        cars.add(new Car("kek #1", "LG", R.drawable.cat));
-        cars.add(new Car("kek #2", "LG", R.drawable.cat));
-        cars.add(new Car("kek #3", "LG", R.drawable.cat));
-        cars.add(new Car("kek #4", "LG", R.drawable.cat));
-        cars.add(new Car("kek #5", "LG", R.drawable.cat));
+        new Thread(() -> {
+            showProgressView();
+            runOnUiThread(()->{
+                // Создаем PendingIntent для Service1 Task1
+                pendingIntentDromLoad = createPendingResult(ServiceDromParserId, new Intent(), 0);
+                // Создаем Intent для вызова сервиса, кладем туда данные
+                // и ранее созданный PendingIntent
+                intentDromLoad = new Intent(Main3Activity.this, ServiceDromParcer.class)
+                        .putExtra(ServiceDromParcer.PARAM_NUMBER, carsNumber++)
+                        .putExtra(ServiceDromParcer.PARAM_PINTENT, pendingIntentDromLoad);
+                // стартуем сервис
+                startService(intentDromLoad);
+            });
+        }).start();
     }
 }
