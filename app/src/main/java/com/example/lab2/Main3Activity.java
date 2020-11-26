@@ -52,10 +52,8 @@ public class Main3Activity extends AppCompatActivity {
 
     private void initComponents() {
         this.recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-//        this.linearLayout = (LinearLayout) findViewById(R.id.linearLayout);
         this.nestedScrollView = (NestedScrollView) findViewById(R.id.nestedScrollView);
         this.progressBar = (ProgressBar) findViewById(R.id.progressBar);
-
         this.recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // создаем адаптер
@@ -110,12 +108,6 @@ public class Main3Activity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-//                    for (int i = 0; i < 5; i++) {
-//                        adapter.addElement(
-//                                new Car("kek #" + (counter++), UUID.randomUUID().toString(), R.drawable.unknown_car)
-//                        );
-//                    }
-
                     // Создаем PendingIntent для Service1 Task1
                     pendingIntentDromLoad = createPendingResult(ServiceDromParserId, new Intent(), 0);
                     // Создаем Intent для вызова сервиса, кладем туда данные
@@ -136,10 +128,7 @@ public class Main3Activity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         Log.d(LOG_TAG, "requestCode = " + requestCode + ", resultCode = " + resultCode);
-
-
         switch (requestCode) {
             case ServiceDromParserId: {
                 if (resultCode == ServiceDromParcer.STATUS_FINISH) {
@@ -150,16 +139,8 @@ public class Main3Activity extends AppCompatActivity {
                     }.getType());
                     for (Car car : cars) {
                         car.setImage(R.drawable.unknown_car);
-                        AsyncTask<String, Void, Bitmap> execute = new DownloadImageTask(new ImageView(this))
-                                .execute(car.getImage_x2());
-                        try {
-                            Bitmap bitmap = execute.get();
-                            car.setBitmap(bitmap);
-                        } catch (ExecutionException e) {
-                            e.printStackTrace();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+//                        AsyncTask<String, Void, Bitmap> execute = new DownloadImageTask(car, adapter)
+//                                .execute(car.getImage_x2());
                         adapter.addElement(car);
                     }
                 }
@@ -168,7 +149,6 @@ public class Main3Activity extends AppCompatActivity {
                 break;
             }
         }
-
     }
 
     void showProgressView() {
@@ -189,10 +169,12 @@ public class Main3Activity extends AppCompatActivity {
         });
     }
 
+
+
     private void setInitialData() {
         new Thread(() -> {
             showProgressView();
-            runOnUiThread(()->{
+            runOnUiThread(() -> {
                 // Создаем PendingIntent для Service1 Task1
                 pendingIntentDromLoad = createPendingResult(ServiceDromParserId, new Intent(), 0);
                 // Создаем Intent для вызова сервиса, кладем туда данные

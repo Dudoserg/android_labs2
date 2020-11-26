@@ -8,15 +8,22 @@ import android.widget.ImageView;
 
 import java.io.InputStream;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 
     final String LOG_TAG = "myLogs";
 
 
-    ImageView bmImage;
+    private Car car;
+    private Lab3_Adapter lab3_adapter;
 
-    public DownloadImageTask(ImageView bmImage) {
-        this.bmImage = bmImage;
+    public DownloadImageTask(Car car, Lab3_Adapter adapter) {
+        this.car = car;
+        this.lab3_adapter = adapter;
     }
 
     protected Bitmap doInBackground(String... urls) {
@@ -29,10 +36,11 @@ public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
             Log.e(LOG_TAG, e.getMessage());
             e.printStackTrace();
         }
+        car.setBitmap(mIcon11);
         return mIcon11;
     }
 
     protected void onPostExecute(Bitmap result) {
-        bmImage.setImageBitmap(result);
+        this.lab3_adapter.update();
     }
 }

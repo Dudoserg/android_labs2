@@ -70,14 +70,7 @@ public class ServiceDromParcer extends Service {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            //0
-            //1
-            //2
-            //3
 
-            //4
-            //5
-            //6
             List<Car> car_result = new ArrayList<>();
             int start = (number % 4) * 5;
             int end = ((number % 4) + 1) * 5;
