@@ -47,7 +47,7 @@ public class ServiceDromParcer extends Service {
 
         new Thread(() -> {
             // Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create();
-            String url = "https://novosibirsk.drom.ru/toyota/chaser/page" + ((number / 2) + 1) + "/";
+            String url = "https://novosibirsk.drom.ru/toyota/mark_ii/page" + ((number / 2) + 1) + "/";
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(url)
                     .addConverterFactory(ScalarsConverterFactory.create())

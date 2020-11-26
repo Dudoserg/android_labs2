@@ -58,7 +58,7 @@ public class Main3Activity extends AppCompatActivity {
 
         // создаем адаптер
         adapter = new Lab3_Adapter(this, cars);
-        adapter.setHasStableIds(true);
+//        adapter.setHasStableIds(true);
         // устанавливаем для списка адаптер
         recyclerView.setAdapter(adapter);
         recyclerView.setNestedScrollingEnabled(false);
