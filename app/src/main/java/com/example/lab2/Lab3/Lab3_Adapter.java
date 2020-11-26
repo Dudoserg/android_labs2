@@ -70,24 +70,24 @@ public class Lab3_Adapter extends RecyclerView.Adapter<Lab3_Adapter.ViewHolder> 
         holder.info.setText(car.getInfo());
 
         if (car.getImage_x2() != null && !"".equals(car.getImage_x2())) {
-            holder.progressBar_loadImage.setVisibility(View.VISIBLE);
+            holder.showProgressView();
             Glide.with(context)
                     .load(car.getImage_x2())
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                            holder.progressBar_loadImage.setVisibility(View.GONE);
+                            holder.removeProgressView();
                             return false;
                         }
                         @Override
                         public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            holder.progressBar_loadImage.setVisibility(View.GONE);
+                            holder.removeProgressView();
                             return false;
                         }
                     })
                     .into(holder.imageView);
         }else{
-            holder.progressBar_loadImage.setVisibility(View.GONE);
+            holder.removeProgressView();
         }
     }
 
@@ -117,6 +117,9 @@ public class Lab3_Adapter extends RecyclerView.Adapter<Lab3_Adapter.ViewHolder> 
 
         void hideProgressView() {
             progressBar_loadImage.setVisibility(View.INVISIBLE);
+        }
+        void removeProgressView() {
+            progressBar_loadImage.setVisibility(View.GONE);
         }
 
     }
