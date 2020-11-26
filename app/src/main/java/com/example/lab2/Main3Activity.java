@@ -139,8 +139,6 @@ public class Main3Activity extends AppCompatActivity {
                     }.getType());
                     for (Car car : cars) {
                         car.setImage(R.drawable.unknown_car);
-//                        AsyncTask<String, Void, Bitmap> execute = new DownloadImageTask(car, adapter)
-//                                .execute(car.getImage_x2());
                         adapter.addElement(car);
                     }
                 }

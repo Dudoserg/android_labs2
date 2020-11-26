@@ -47,7 +47,7 @@ public class ServiceDromParcer extends Service {
 
         new Thread(() -> {
             // Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create();
-            String url = "https://novosibirsk.drom.ru/toyota/chaser/page" + ((number / 4) + 1) + "/";
+            String url = "https://novosibirsk.drom.ru/toyota/chaser/page" + ((number / 2) + 1) + "/";
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(url)
                     .addConverterFactory(ScalarsConverterFactory.create())
@@ -72,8 +72,8 @@ public class ServiceDromParcer extends Service {
             }
 
             List<Car> car_result = new ArrayList<>();
-            int start = (number % 4) * 5;
-            int end = ((number % 4) + 1) * 5;
+            int start = (number % 2) * 10;
+            int end = ((number % 2) + 1) * 10;
             for (int i = start; i < end; i++) {
                 car_result.add(cars_all.get(i));
             }

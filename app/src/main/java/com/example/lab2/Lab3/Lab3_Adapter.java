@@ -36,9 +36,7 @@ public class Lab3_Adapter extends RecyclerView.Adapter<Lab3_Adapter.ViewHolder> 
 
     public void update() {
         notifyDataSetChanged();
-
     }
-
 
     public void addElement(Car car) {
         this.cars.add(car);
@@ -71,38 +69,26 @@ public class Lab3_Adapter extends RecyclerView.Adapter<Lab3_Adapter.ViewHolder> 
         holder.model.setText(car.getPrice());
         holder.info.setText(car.getInfo());
 
-        holder.progressBar_loadImage.setVisibility(View.VISIBLE);
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ee) {
-                ee.printStackTrace();
-            }
-
+        if (car.getImage_x2() != null && !"".equals(car.getImage_x2())) {
+            holder.progressBar_loadImage.setVisibility(View.VISIBLE);
             Glide.with(context)
                     .load(car.getImage_x2())
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-
                             holder.progressBar_loadImage.setVisibility(View.GONE);
                             return false;
                         }
-
                         @Override
                         public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException ee) {
-                                ee.printStackTrace();
-                            }
                             holder.progressBar_loadImage.setVisibility(View.GONE);
                             return false;
                         }
                     })
                     .into(holder.imageView);
-        }).start();
-
+        }else{
+            holder.progressBar_loadImage.setVisibility(View.GONE);
+        }
     }
 
     @Override
